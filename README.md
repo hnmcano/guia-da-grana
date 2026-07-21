@@ -3,8 +3,8 @@
 Blog estático de educação financeira (finanças pessoais para o brasileiro do dia a dia), pronto para monetização com Google AdSense.
 
 - **Stack:** HTML + CSS puros, zero dependências, zero build.
-- **Hospedagem:** GitHub Pages (branch `main`, raiz).
-- **URL:** https://hnmcano.github.io/guia-da-grana/
+- **Hospedagem:** GitHub Pages (branch `main`, raiz) com domínio próprio via arquivo `CNAME`.
+- **URL:** https://guiadagrana.uniqsystems.com.br/ (fallback: https://hnmcano.github.io/guia-da-grana/)
 
 ## Estrutura
 
@@ -29,10 +29,12 @@ Atualizações depois: `git add -A; git commit -m "..."; git push`.
 
 ## Ativar o AdSense (passos manuais do dono)
 
-1. Criar conta em https://adsense.google.com com o site cadastrado.
-2. **Importante:** o AdSense não aceita subdomínios `github.io` — é preciso um
-   domínio próprio (ex.: `guiadagrana.com.br`, ~R$ 40/ano no Registro.br)
-   apontando para o GitHub Pages (arquivo `CNAME` + DNS).
+1. **DNS:** criar registro CNAME no DNS de `uniqsystems.com.br`:
+   `guiadagrana` → `hnmcano.github.io` (o arquivo `CNAME` do repo já cuida do
+   lado do GitHub Pages; depois ativar "Enforce HTTPS" nas settings do repo).
+2. Criar conta em https://adsense.google.com cadastrando o domínio raiz
+   `uniqsystems.com.br` (AdSense não aceita subdomínio `github.io`; com o raiz
+   cadastrado, os anúncios rodam no subdomínio do blog).
 3. Após aprovação, em **todas** as páginas HTML, descomentar o bloco
    `GOOGLE ADSENSE` no `<head>` e trocar `ca-pub-XXXXXXXXXXXXXXXX` pelo ID real.
 4. Atualizar o `ads.txt` com a linha real do editor.

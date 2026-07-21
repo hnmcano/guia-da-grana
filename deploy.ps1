@@ -18,3 +18,7 @@ $user = (& $gh api user --jq .login)
 Write-Host ""
 Write-Host "Site publicado! Em 1-2 minutos estara no ar em:" -ForegroundColor Green
 Write-Host "https://$user.github.io/guia-da-grana/" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Para o dominio proprio funcionar, crie no DNS de uniqsystems.com.br:" -ForegroundColor Yellow
+Write-Host "  CNAME  guiadagrana  ->  $user.github.io" -ForegroundColor Cyan
+Write-Host "Depois ative 'Enforce HTTPS' em Settings > Pages do repositorio." -ForegroundColor Yellow

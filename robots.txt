@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hnmcano.github.io/guia-da-grana/sitemap.xml
+Sitemap: https://guiadagrana.uniqsystems.com.br/sitemap.xml
