@@ -1,0 +1,4 @@
+# ads.txt — Guia da Grana
+# Quando sua conta AdSense for aprovada, substitua a linha abaixo pelo seu
+# ID de editor real (pub-XXXXXXXXXXXXXXXX) e remova este comentário:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
