@@ -4,7 +4,7 @@ Blog estático de educação financeira (finanças pessoais para o brasileiro do
 
 - **Stack:** HTML + CSS puros, zero dependências, zero build.
 - **Hospedagem:** GitHub Pages (branch `main`, raiz) com domínio próprio via arquivo `CNAME`.
-- **URL:** https://guiadagrana.uniqsystems.com.br/ (fallback: https://hnmcano.github.io/guia-da-grana/)
+- **URL:** https://guiadagrana.com.br/ (fallback: https://hnmcano.github.io/guia-da-grana/)
 
 ## Estrutura
 

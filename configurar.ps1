@@ -100,4 +100,4 @@ git -C $raiz push
 
 Write-Host ""
 Write-Host "Publicado! O site atualiza em ~1 minuto:" -ForegroundColor Green
-Write-Host "https://guiadagrana.uniqsystems.com.br/" -ForegroundColor Cyan
+Write-Host "https://guiadagrana.com.br/" -ForegroundColor Cyan
