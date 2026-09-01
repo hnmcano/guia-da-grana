@@ -203,3 +203,15 @@ footer li { margin-bottom: 0.4rem; }
   article.post h1 { font-size: 1.55rem; }
   .topo { justify-content: center; }
 }
+
+/* Capa (hero) dos artigos */
+.post-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 4px 0 22px;
+  box-shadow: 0 6px 22px rgba(92, 102, 99, 0.16);
+}
