@@ -215,3 +215,8 @@ footer li { margin-bottom: 0.4rem; }
   margin: 4px 0 22px;
   box-shadow: 0 6px 22px rgba(92, 102, 99, 0.16);
 }
+
+/* Logo em imagem no header */
+.logo { line-height: 0; }
+.logo-img { height: 40px; width: auto; display: block; }
+@media (max-width: 600px) { .logo-img { height: 34px; } }
