@@ -119,6 +119,134 @@
     </ul>
     <p>As tabelas mudam com frequência — confira os valores atualizados no site do INSS e da Receita Federal antes de fechar sua conta.</p>
 
+    <h2>Calculadora: quanto você vai receber de 13º</h2>
+    <p>Informe seu salário bruto e quantos meses você trabalhou no ano para ver o valor bruto, os descontos de INSS e IR (já com a isenção de até R$ 5.000 da <a href="isencao-imposto-de-renda-5000-2026.html">nova lei do IR</a>) e o valor líquido de cada parcela.</p>
+
+    <div class="calc-box" id="calc-13">
+      <h3>Calculadora do 13º salário</h3>
+      <p class="calc-sub">Estimativa com as tabelas de INSS e IR vigentes em 2026. Não considera dependentes nem outras deduções.</p>
+
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label for="calc13-salario">Salário bruto mensal (R$)</label>
+          <input type="text" inputmode="decimal" id="calc13-salario" placeholder="Ex: 3000">
+        </div>
+        <div class="calc-field">
+          <label for="calc13-meses">Meses trabalhados no ano</label>
+          <select id="calc13-meses">
+            <option value="12" selected>12 (ano inteiro)</option>
+            <option value="11">11</option>
+            <option value="10">10</option>
+            <option value="9">9</option>
+            <option value="8">8</option>
+            <option value="7">7</option>
+            <option value="6">6</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="calc-btn" id="calc13-btn">Calcular meu 13º</button>
+
+      <div class="calc-result" id="calc13-result" hidden>
+        <div class="calc-linha"><span>13º bruto</span><span id="calc13-bruto">—</span></div>
+        <div class="calc-linha"><span>(−) Desconto INSS</span><span id="calc13-inss">—</span></div>
+        <div class="calc-linha"><span>(−) Desconto IR</span><span id="calc13-ir">—</span></div>
+        <div class="calc-linha calc-total"><span>13º líquido total</span><span id="calc13-liquido">—</span></div>
+
+        <div class="calc-parcelas">
+          <div class="calc-parcela">
+            <div class="calc-parcela-label">1ª parcela (sem desconto)</div>
+            <div class="calc-parcela-valor" id="calc13-p1">—</div>
+          </div>
+          <div class="calc-parcela">
+            <div class="calc-parcela-label">2ª parcela (com INSS + IR)</div>
+            <div class="calc-parcela-valor" id="calc13-p2">—</div>
+          </div>
+        </div>
+
+        <p class="calc-nota">Cálculo educativo e aproximado: usa as faixas do INSS (Portaria Interministerial MPS/MF nº 13/2026) e a tabela do IR com a isenção até R$ 5.000 da Lei nº 15.270/2025, sem considerar dependentes, pensão alimentícia ou previdência privada. Confirme o valor exato no holerite da sua empresa.</p>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      function calcularINSS(valor) {
+        var faixas = [
+          { ate: 1621.00, aliq: 0.075 },
+          { ate: 2902.84, aliq: 0.09 },
+          { ate: 4354.27, aliq: 0.12 },
+          { ate: 8475.55, aliq: 0.14 }
+        ];
+        if (valor >= 8475.55) return 988.15;
+        var desconto = 0, anterior = 0;
+        for (var i = 0; i < faixas.length; i++) {
+          var f = faixas[i];
+          if (valor > anterior) {
+            var base = Math.min(valor, f.ate) - anterior;
+            desconto += base * f.aliq;
+          }
+          anterior = f.ate;
+        }
+        return desconto;
+      }
+
+      function calcularIRTabela(base) {
+        if (base <= 2428.80) return 0;
+        if (base <= 2826.65) return base * 0.075 - 182.16;
+        if (base <= 3751.05) return base * 0.15 - 394.16;
+        if (base <= 4664.68) return base * 0.225 - 675.49;
+        return base * 0.275 - 908.73;
+      }
+
+      function calcularIR(brutoDecimo, baseAposInss) {
+        if (brutoDecimo <= 5000) return 0;
+        var imposto = calcularIRTabela(baseAposInss);
+        if (brutoDecimo <= 7350) {
+          var reducao = 978.62 - 0.133145 * brutoDecimo;
+          if (reducao < 0) reducao = 0;
+          imposto = Math.max(0, imposto - reducao);
+        }
+        return Math.max(0, imposto);
+      }
+
+      function fmt(v) {
+        return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      document.getElementById('calc13-btn').addEventListener('click', function () {
+        var salarioStr = document.getElementById('calc13-salario').value.replace(',', '.');
+        var salario = parseFloat(salarioStr);
+        var meses = parseInt(document.getElementById('calc13-meses').value, 10);
+
+        if (!salario || salario <= 0) {
+          alert('Informe um salário bruto válido.');
+          return;
+        }
+
+        var bruto = (salario / 12) * meses;
+        var inss = calcularINSS(bruto);
+        var baseIr = bruto - inss;
+        var ir = calcularIR(bruto, baseIr);
+        var liquido = bruto - inss - ir;
+        var parcela1 = bruto / 2;
+        var parcela2 = liquido - parcela1;
+
+        document.getElementById('calc13-bruto').textContent = fmt(bruto);
+        document.getElementById('calc13-inss').textContent = fmt(inss);
+        document.getElementById('calc13-ir').textContent = fmt(ir);
+        document.getElementById('calc13-liquido').textContent = fmt(liquido);
+        document.getElementById('calc13-p1').textContent = fmt(parcela1);
+        document.getElementById('calc13-p2').textContent = fmt(parcela2);
+        document.getElementById('calc13-result').hidden = false;
+      });
+    })();
+    </script>
+
     <h2>Faltas, demissão e outras situações</h2>
     <h3>Faltas não justificadas</h3>
     <p>Se as faltas sem justificativa fizerem você trabalhar menos de 15 dias em um mês, aquele mês sai do cálculo do 13º.</p>
