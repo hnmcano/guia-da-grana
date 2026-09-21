@@ -111,6 +111,105 @@
     <p>Esse tempo pode ser <strong>trabalhado</strong> (você continua na empresa, com direito a redução de 2 horas na jornada diária ou 7 dias corridos de folga, para procurar novo emprego) ou <strong>indenizado</strong> (a empresa dispensa o comparecimento e paga o valor correspondente). Quando é a empresa quem demite, ela decide se quer que você cumpra o aviso ou se prefere indenizá-lo; quando é você quem pede demissão, o mesmo prazo vale ao contrário — se não cumprir e a empresa não dispensar o cumprimento, ela pode descontar o valor correspondente das suas verbas.</p>
     <p>Um detalhe importante: o período do aviso prévio, mesmo quando indenizado, <strong>conta como tempo de serviço</strong> para efeito de férias, 13º salário e FGTS — ele "projeta" o contrato para a frente por aqueles dias.</p>
 
+    <h2>Calculadora: estimativa das verbas rescisórias</h2>
+    <p>Para uma <strong>demissão sem justa causa</strong> — o cenário mais comum e mais completo em direitos —, informe seus dados para estimar o aviso prévio, o 13º e as férias proporcionais e a multa do FGTS.</p>
+
+    <div class="calc-box" id="calc-rescisao">
+      <h3>Calculadora de rescisão (demissão sem justa causa)</h3>
+      <p class="calc-sub">Estimativa dos valores <strong>brutos</strong> das principais verbas. Não inclui o saldo de salário dos dias trabalhados no mês da saída nem os descontos de INSS/IR (cada verba é tributada de um jeito diferente) — use como referência, não como valor final do TRCT.</p>
+
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label for="calcr-salario">Salário bruto mensal (R$)</label>
+          <input type="text" inputmode="decimal" id="calcr-salario" placeholder="Ex: 3000">
+        </div>
+        <div class="calc-field">
+          <label for="calcr-anos">Anos completos de empresa</label>
+          <input type="text" inputmode="numeric" id="calcr-anos" placeholder="Ex: 4">
+        </div>
+        <div class="calc-field">
+          <label for="calcr-meses">Meses trabalhados no ano da saída</label>
+          <select id="calcr-meses">
+            <option value="12">12</option>
+            <option value="11">11</option>
+            <option value="10">10</option>
+            <option value="9">9</option>
+            <option value="8" selected>8</option>
+            <option value="7">7</option>
+            <option value="6">6</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label for="calcr-fgts">Saldo total do FGTS (R$, opcional)</label>
+          <input type="text" inputmode="decimal" id="calcr-fgts" placeholder="Ex: 12000 (deixe em branco se não souber)">
+        </div>
+      </div>
+
+      <button type="button" class="calc-btn" id="calcr-btn">Calcular verbas estimadas</button>
+
+      <div class="calc-result" id="calcr-result" hidden>
+        <div class="calc-linha"><span id="calcr-aviso-label">Aviso prévio indenizado</span><span id="calcr-aviso">—</span></div>
+        <div class="calc-linha"><span>13º salário proporcional</span><span id="calcr-decimo">—</span></div>
+        <div class="calc-linha"><span>Férias proporcionais + 1/3</span><span id="calcr-ferias">—</span></div>
+        <div class="calc-linha" id="calcr-multa-linha" hidden><span>Multa do FGTS (40%)</span><span id="calcr-multa">—</span></div>
+        <div class="calc-linha calc-total"><span>Total bruto estimado</span><span id="calcr-total">—</span></div>
+
+        <p class="calc-nota">Cálculo educativo e aproximado, válido só para <strong>demissão sem justa causa</strong>. Não inclui saldo de salário do mês da saída, férias vencidas (se houver), nem descontos de INSS/IR sobre 13º e férias. O saque do saldo do FGTS (além da multa) depende de você informar o valor correto — confirme sempre no TRCT e no extrato do FGTS.</p>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      function fmt(v) {
+        return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      document.getElementById('calcr-btn').addEventListener('click', function () {
+        var salarioStr = document.getElementById('calcr-salario').value.replace(',', '.');
+        var salario = parseFloat(salarioStr);
+        var anosStr = document.getElementById('calcr-anos').value.replace(',', '.');
+        var anos = parseFloat(anosStr);
+        var meses = parseInt(document.getElementById('calcr-meses').value, 10);
+        var fgtsStr = document.getElementById('calcr-fgts').value.replace(',', '.');
+        var fgts = parseFloat(fgtsStr);
+
+        if (!salario || salario <= 0) {
+          alert('Informe um salário bruto válido.');
+          return;
+        }
+        if (isNaN(anos) || anos < 0) anos = 0;
+
+        var diasAviso = Math.min(30 + 3 * Math.floor(anos), 90);
+        var aviso = (salario / 30) * diasAviso;
+        var decimo = (salario / 12) * meses;
+        var ferias = (salario / 12) * meses * (4 / 3);
+        var multa = (!isNaN(fgts) && fgts > 0) ? fgts * 0.4 : 0;
+        var total = aviso + decimo + ferias + multa;
+
+        document.getElementById('calcr-aviso-label').textContent = 'Aviso prévio indenizado (' + diasAviso + ' dias)';
+        document.getElementById('calcr-aviso').textContent = fmt(aviso);
+        document.getElementById('calcr-decimo').textContent = fmt(decimo);
+        document.getElementById('calcr-ferias').textContent = fmt(ferias);
+        document.getElementById('calcr-total').textContent = fmt(total);
+
+        var multaLinha = document.getElementById('calcr-multa-linha');
+        if (multa > 0) {
+          document.getElementById('calcr-multa').textContent = fmt(multa);
+          multaLinha.hidden = false;
+        } else {
+          multaLinha.hidden = true;
+        }
+
+        document.getElementById('calcr-result').hidden = false;
+      });
+    })();
+    </script>
+
     <!-- ad-slot: dentro do artigo -->
     <div class="ad-slot"></div>
 

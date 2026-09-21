@@ -115,6 +115,138 @@
       <li><strong>Não há desconto de INSS nem de imposto de renda</strong> sobre o abono pecuniário, porque ele tem natureza indenizatória — diferente da remuneração normal das férias, que é tributada.</li>
     </ul>
 
+    <h2>Calculadora: quanto você vai receber de férias</h2>
+    <p>Informe seu salário bruto e quantos dias você quer vender de abono pecuniário (0 se for descansar os 30 dias inteiros) para ver o valor líquido, já com INSS e IR sobre a parte de descanso.</p>
+
+    <div class="calc-box" id="calc-ferias">
+      <h3>Calculadora de férias CLT</h3>
+      <p class="calc-sub">Estimativa com as tabelas de INSS e IR vigentes em 2026, assumindo período aquisitivo cheio (30 dias, sem faltas). Não considera dependentes nem outras deduções.</p>
+
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label for="calcf-salario">Salário bruto mensal (R$)</label>
+          <input type="text" inputmode="decimal" id="calcf-salario" placeholder="Ex: 3000">
+        </div>
+        <div class="calc-field">
+          <label for="calcf-vendidos">Dias de abono vendidos</label>
+          <select id="calcf-vendidos">
+            <option value="0" selected>0 (descansa os 30 dias)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10 (máximo permitido)</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="calc-btn" id="calcf-btn">Calcular minhas férias</button>
+
+      <div class="calc-result" id="calcf-result" hidden>
+        <div class="calc-linha"><span id="calcf-dias-label">Remuneração + 1/3 (30 dias de descanso)</span><span id="calcf-base">—</span></div>
+        <div class="calc-linha"><span>(−) Desconto INSS</span><span id="calcf-inss">—</span></div>
+        <div class="calc-linha"><span>(−) Desconto IR</span><span id="calcf-ir">—</span></div>
+        <div class="calc-linha" id="calcf-abono-linha" hidden><span>Abono pecuniário + 1/3 (isento)</span><span id="calcf-abono">—</span></div>
+        <div class="calc-linha calc-total"><span>Total líquido a receber</span><span id="calcf-liquido">—</span></div>
+
+        <p class="calc-nota">Cálculo educativo e aproximado: usa as faixas do INSS (Portaria Interministerial MPS/MF nº 13/2026) e a tabela do IR com a isenção até R$ 5.000 da Lei nº 15.270/2025, sobre a parte de descanso (o abono pecuniário é isento por natureza indenizatória). Não considera dependentes, pensão alimentícia, previdência privada nem reduções por faltas. Confirme o valor exato no holerite da sua empresa.</p>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      function calcularINSS(valor) {
+        var faixas = [
+          { ate: 1621.00, aliq: 0.075 },
+          { ate: 2902.84, aliq: 0.09 },
+          { ate: 4354.27, aliq: 0.12 },
+          { ate: 8475.55, aliq: 0.14 }
+        ];
+        if (valor >= 8475.55) return 988.15;
+        var desconto = 0, anterior = 0;
+        for (var i = 0; i < faixas.length; i++) {
+          var f = faixas[i];
+          if (valor > anterior) {
+            var base = Math.min(valor, f.ate) - anterior;
+            desconto += base * f.aliq;
+          }
+          anterior = f.ate;
+        }
+        return desconto;
+      }
+
+      function calcularIRTabela(base) {
+        if (base <= 2428.80) return 0;
+        if (base <= 2826.65) return base * 0.075 - 182.16;
+        if (base <= 3751.05) return base * 0.15 - 394.16;
+        if (base <= 4664.68) return base * 0.225 - 675.49;
+        return base * 0.275 - 908.73;
+      }
+
+      function calcularIR(rendaRef, baseAposInss) {
+        if (rendaRef <= 5000) return 0;
+        var imposto = calcularIRTabela(baseAposInss);
+        if (rendaRef <= 7350) {
+          var reducao = 978.62 - 0.133145 * rendaRef;
+          if (reducao < 0) reducao = 0;
+          imposto = Math.max(0, imposto - reducao);
+        }
+        return Math.max(0, imposto);
+      }
+
+      function fmt(v) {
+        return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      document.getElementById('calcf-btn').addEventListener('click', function () {
+        var salarioStr = document.getElementById('calcf-salario').value.replace(',', '.');
+        var salario = parseFloat(salarioStr);
+        var diasVendidos = parseInt(document.getElementById('calcf-vendidos').value, 10);
+
+        if (!salario || salario <= 0) {
+          alert('Informe um salário bruto válido.');
+          return;
+        }
+
+        var diasGozados = 30 - diasVendidos;
+        var remGozada = (salario / 30) * diasGozados;
+        var tercoGozada = remGozada / 3;
+        var baseTributavel = remGozada + tercoGozada;
+
+        var abono = (salario / 30) * diasVendidos;
+        var tercoAbono = abono / 3;
+        var totalAbono = abono + tercoAbono;
+
+        var inss = calcularINSS(baseTributavel);
+        var baseIr = baseTributavel - inss;
+        var ir = calcularIR(baseTributavel, baseIr);
+        var liquidoTributavel = baseTributavel - inss - ir;
+        var totalLiquido = liquidoTributavel + totalAbono;
+
+        document.getElementById('calcf-dias-label').textContent = 'Remuneração + 1/3 (' + diasGozados + ' dias de descanso)';
+        document.getElementById('calcf-base').textContent = fmt(baseTributavel);
+        document.getElementById('calcf-inss').textContent = fmt(inss);
+        document.getElementById('calcf-ir').textContent = fmt(ir);
+        document.getElementById('calcf-liquido').textContent = fmt(totalLiquido);
+
+        var abonoLinha = document.getElementById('calcf-abono-linha');
+        if (diasVendidos > 0) {
+          document.getElementById('calcf-abono').textContent = fmt(totalAbono);
+          abonoLinha.hidden = false;
+        } else {
+          abonoLinha.hidden = true;
+        }
+
+        document.getElementById('calcf-result').hidden = false;
+      });
+    })();
+    </script>
+
     <h2>Dá para dividir as férias em mais de uma vez?</h2>
     <p>Sim, desde a reforma trabalhista de 2017 (Lei nº 13.467/2017, que alterou o art. 134, §1º da CLT). Com a concordância do empregado, as férias podem ser fracionadas em <strong>até três períodos</strong>, desde que:</p>
     <ul>
